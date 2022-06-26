@@ -1,44 +1,41 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useState, useContext, useEffect } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import NavBar from '@/components/navBar/NavBar'
+import Home from '@/pages/home'
+import Task from './pages/task'
+import { ThemeProvider } from 'styled-components'
+import { base, light, dark } from '@/theme'
+import { ThemeContext } from './context/theme'
 
-function App() {
-  const [count, setCount] = useState(0)
+
+const App = () => {
+
+  const { theme, changeTheme } = useContext(ThemeContext);
+  const themeMap = {
+    light,
+    dark
+  }
+
+  const currentTheme = { ...base, colors: themeMap[theme] || dark }
+
+  // 偵測系統 color theme，並設定為預設
+  useEffect(() => {
+    const isInitalLightTheme = window.matchMedia('(prefers-color-scheme: light)').matches
+    changeTheme(isInitalLightTheme ? 'light' : 'dark')
+  }, [])
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.jsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
-    </div>
+    <ThemeProvider theme={currentTheme}>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<NavBar />}>
+            <Route index element={<Home />} />
+            <Route path="task" element={<Task />} />
+          </Route>
+        </Routes>
+      </div>
+    </ThemeProvider>
+
   )
 }
 
